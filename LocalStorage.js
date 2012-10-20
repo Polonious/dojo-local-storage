@@ -117,15 +117,9 @@ define([
         //      Defines the query engine to use for querying the data store
         queryEngine: SimpleQueryEngine,
 
-        // subsetProperty: String
+        // subset: String
         //      Limit this store by configuration to work with a specified subset of objects
-        //      Before storing an object, the store adds a property with this name to it
-        //      This property is removed upon object retrieval, making this feature transparent to a client
-        subsetProperty: null,
-
-        // subsetName: mixed
-        //      Define a subset name. See subsetProperty for more information
-        subsetName: null,
+        subset: "",
 
         constructor: function (options) {
             // summary:
@@ -137,7 +131,7 @@ define([
             this.setData(this.data || []);
         },
 
-        get: function (id) {
+        get: function (id, key) {
             // summary:
             //      Retrieves an object by its identity
             // id: Number
@@ -145,19 +139,12 @@ define([
             //      If not already present, the id is added to the returned object - object[this.idProperty]
             // returns: Object
             //      The value in the store that matches the given id (key).
-            var item = localStorage.getItem(id), object = null;
+        	key = key || this.subset+"_"+id;
+        	var item = localStorage.getItem(key), object = null;
 
             try {
                 object = json.parse(item);
                 object[this.idProperty] = id;
-
-                if (this.subsetProperty) {
-                    if (object[this.subsetProperty] !== this.subsetName) {
-                        return undefined;
-                    }
-
-                    delete object[this.subsetProperty];
-                }
 
                 return object;
             } catch (e) {
@@ -185,12 +172,9 @@ define([
             // returns: Number
             var id = (options && options.id) || object[this.idProperty] || Math.random();
 
-            if (this.subsetProperty) {
-                object[this.subsetProperty] = this.subsetName;
-            }
             delete object[this.idProperty];
 
-            localStorage.setItem(id, json.stringify(object));
+            localStorage.setItem(this.subset+"_"+id, json.stringify(object));
             return id;
         },
 
@@ -215,7 +199,7 @@ define([
             //      Deletes an object by its identity
             // id: Number
             //      The identity to use to delete the object
-            localStorage.removeItem(id);
+            localStorage.removeItem(this.subset+"_"+id);
         },
 
         query: function (query, options) {
@@ -249,11 +233,13 @@ define([
             //
             // | var results = store.query({ even: true });
 
-            var data = [], i = 0, id = null, item = null;
+            var data = [], i = 0, id = null, item = null, l = localStorage.length,
+            	prefix = this.subset+"_", pl = prefix.length;
 
-            for (i = 0; i < localStorage.length; i += 1) {
+            for (i = 0; i < l; i++) {
                 id = localStorage.key(i);
-                item = this.get(id);
+                if(id.indexOf(prefix)!=0) continue;
+                item = this.get(id.substr(pl), id);
 
                 if (item) {
                     data.push(item);
