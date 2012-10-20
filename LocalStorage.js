@@ -188,6 +188,7 @@ define([
             if (this.subsetProperty) {
                 object[this.subsetProperty] = this.subsetName;
             }
+            delete object[this.idProperty];
 
             localStorage.setItem(id, json.stringify(object));
             return id;
