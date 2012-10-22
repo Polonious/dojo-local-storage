@@ -9,7 +9,7 @@ This store provides a dojo/store interface when working with LocalStorage. Check
 
 ## Introduction
 
-LocalStorage only works with key/value pairs where value is a string. Dojo-local-storage in contrast works with objects. A JSON serialization of an object is stored in LocalStorage, storing strings directly is not supported.
+LocalStorage only works with key/value pairs where value is a string. Dojo-local-storage in contrast works with objects. A JSON serialization of an object is stored in LocalStorage.
 
 ## Usage
 
@@ -25,12 +25,15 @@ LocalStorage only works with key/value pairs where value is a string. Dojo-local
             title: 'Elementarteilchen',
             year: 2006
         });
+        // storing a string
+        store.add('hello world', {id: 'greeting'});
+        
         
         // querying the store
         var result = store.query({
             year: 2006
         },{
-            sort: [{ attribute:"year", descending: false }]
+            sort: [{ attribute:'year', descending: false }]
         });
         
         // updating an object
@@ -41,7 +44,9 @@ LocalStorage only works with key/value pairs where value is a string. Dojo-local
         });
         
         // getting an object
-        var object = store.put('abc');
+        var object = store.get('abc');
+        // getting a string
+        var str = store.get('greeting');
         
         // deleting an object
         store.remove('abc');
@@ -52,11 +57,10 @@ LocalStorage only works with key/value pairs where value is a string. Dojo-local
 
 ## Working With A Data Subset By Configuration
 
-Sometimes it can be desirable to configure a store such that it only operates on a subset of data. This feature can be helpful to use LocalStorage as a read/writeable replacement for a remote API during development. Transparently to a client, Dojo-local-storage adds a property to each object it stores and removes it upon retrieval. Name and value of this property can be passed to the constructor upon instantiation
+Sometimes it can be desirable to configure a store such that it only operates on a subset of data. This feature can be helpful to use LocalStorage as a read/writeable replacement for a remote API during development. Transparently to a client, Dojo-local-storage adds a subset name to the key and removes it upon retrieval. Name and value of this property can be passed to the constructor upon instantiation
 
     var store = new LocalStorage({
-        subsetProperty: 'mySubsetProperty',
-        subsetName: "movies"
+        subset: "movies"
     });
 
 
